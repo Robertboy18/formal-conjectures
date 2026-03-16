@@ -51,6 +51,26 @@ namespace RamseyNumbers
 def IsGraphRamsey (n k l : ℕ) : Prop :=
   ∀ G : SimpleGraph (Fin n), ¬ (G.CliqueFree k ∧ (Gᶜ).CliqueFree l)
 
+/-- Monotonicity in the number of vertices. -/
+theorem IsGraphRamsey.succ (n k l : ℕ) :
+    IsGraphRamsey n k l → IsGraphRamsey (n + 1) k l := by
+  intro h G
+  -- Restrict to the induced subgraph on the first `n` vertices.
+  let H : SimpleGraph (Fin n) := G.comap (Fin.castSuccEmb : Fin n ↪ Fin (n + 1))
+  have emb : H ↪g G := SimpleGraph.Embedding.comap (Fin.castSuccEmb : Fin n ↪ Fin (n + 1)) G
+  have embc : (Hᶜ) ↪g (Gᶜ) := (SimpleGraph.Embedding.complEquiv (G := H) (H := G)).toFun emb
+  rintro ⟨hG, hGc⟩
+  have hH : H.CliqueFree k := SimpleGraph.CliqueFree.comap (f := emb) (n := k) hG
+  have hHc : (Hᶜ).CliqueFree l := SimpleGraph.CliqueFree.comap (f := embc) (n := l) hGc
+  exact (h H) ⟨hH, hHc⟩
+
+/-- Symmetry in the clique / independent set sizes. -/
+theorem IsGraphRamsey.symm (n k l : ℕ) :
+    IsGraphRamsey n k l ↔ IsGraphRamsey n l k := by
+  constructor <;> intro h G
+  · simpa [IsGraphRamsey, and_comm, and_left_comm, and_assoc] using h (Gᶜ)
+  · simpa [IsGraphRamsey, and_comm, and_left_comm, and_assoc] using h (Gᶜ)
+
 /--
 The (graph) Ramsey number `R(k,l)` is the least natural number `n` such that `IsGraphRamsey n k l`
 holds.
@@ -58,21 +78,24 @@ holds.
 noncomputable def graphRamseyNumber (k l : ℕ) : ℕ :=
   sInf {n : ℕ | IsGraphRamsey n k l}
 
+-- Notation used in the literature.
+notation "R(" k ", " l ")" => graphRamseyNumber k l
+
 /--
 The open problem: determine the Ramsey number $R(5,5)$.
 
 It is known that $43 \le R(5,5) \le 46$.
 -/
-@[category research open, AMS 05]
+@[category research open, AMS 5]
 theorem ramsey_number_five_five :
-    IsLeast {n : ℕ | IsGraphRamsey n 5 5} answer(sorry) := by
+    R(5, 5) = answer(sorry) := by
   sorry
 
 /--
 Lower bound $43 \le R(5,5)$, equivalently: there exists a graph on $42$ vertices with no
 $5$-clique and no independent set of size $5$.
 -/
-@[category research solved, AMS 05]
+@[category research solved, AMS 5]
 theorem ramsey_number_five_five_lower_bound :
     ∃ G : SimpleGraph (Fin 42), G.CliqueFree 5 ∧ (Gᶜ).CliqueFree 5 := by
   sorry
@@ -81,7 +104,7 @@ theorem ramsey_number_five_five_lower_bound :
 Upper bound $R(5,5) \le 46$, i.e. every graph on $46$ vertices contains a $5$-clique or an
 independent set of size $5$.
 -/
-@[category research solved, AMS 05]
+@[category research solved, AMS 5]
 theorem ramsey_number_five_five_upper_bound :
     IsGraphRamsey 46 5 5 := by
   sorry
