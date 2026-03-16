@@ -52,6 +52,7 @@ def IsGraphRamsey (n k l : ℕ) : Prop :=
   ∀ G : SimpleGraph (Fin n), ¬ (G.CliqueFree k ∧ (Gᶜ).CliqueFree l)
 
 /-- Monotonicity in the number of vertices. -/
+@[category API, AMS 5]
 theorem IsGraphRamsey.succ (n k l : ℕ) :
     IsGraphRamsey n k l → IsGraphRamsey (n + 1) k l := by
   intro h G
@@ -65,6 +66,7 @@ theorem IsGraphRamsey.succ (n k l : ℕ) :
   exact (h H) ⟨hH, hHc⟩
 
 /-- Symmetry in the clique / independent set sizes. -/
+@[category API, AMS 5]
 theorem IsGraphRamsey.symm (n k l : ℕ) :
     IsGraphRamsey n k l ↔ IsGraphRamsey n l k := by
   constructor <;> intro h G
